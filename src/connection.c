@@ -432,12 +432,20 @@ void set_extra_headers (create_connection_ctx_t *ctx)
   ParodusCfg * cfg = get_parodus_cfg();
 
   free_extra_headers (ctx);
-  if ((strlen(cfg->webpa_auth_token) == 0) &&
-      (cfg->client_cert_path != NULL) && (strlen(cfg->client_cert_path) > 0))
-  {
-    getAuthToken(cfg);
-  }
-  
+
+  if (strlen(cfg->webpa_auth_token) == 0)
+        {
+                if ((cfg->client_cert_path != NULL) && (strlen(cfg->client_cert_path) > 0))
+                        {
+                                getAuthToken(cfg);
+                        }
+                else if (((cfg->mtls_client_cert_path !=NULL) && (strlen(cfg->mtls_client_cert_path) > 0)) && ((cfg->mtls_client_key_path !=NULL) && (strlen(cfg->mtls_client_key_path) > 0)))
+                        {
+                                getAuthToken(cfg);
+                        }
+        }
+
+
   ctx->extra_headers = build_extra_hdrs (&ctx->header_info);
 }
 

@@ -113,7 +113,15 @@ int requestNewAuthToken(char *newToken, size_t len, int r_count)
 		}
 
 		/* set the cert for client authentication */
-		curl_easy_setopt(curl, CURLOPT_SSLCERT, get_parodus_cfg()->client_cert_path);
+		if ((get_parodus_cfg()->client_cert_path != NULL) && (strlen(get_parodus_cfg()->client_cert_path) > 0))
+		{
+			curl_easy_setopt(curl, CURLOPT_SSLCERT, get_parodus_cfg()->client_cert_path);
+		}
+		else if (((get_parodus_cfg()->mtls_client_cert_path !=NULL) && (strlen(get_parodus_cfg()->mtls_client_cert_path)) > 0) && ((get_parodus_cfg()->mtls_client_key_path !=NULL) && (strlen(get_parodus_cfg()->mtls_client_key_path)) > 0))
+                {
+                       curl_easy_setopt(curl, CURLOPT_SSLCERT, get_parodus_cfg()->mtls_client_cert_path);
+                       curl_easy_setopt(curl, CURLOPT_SSLKEY, get_parodus_cfg()->mtls_client_key_path);
+                }
 
 		curl_easy_setopt(curl, CURLOPT_CAINFO, get_parodus_cfg()->cert_path);
 
@@ -182,7 +190,7 @@ void getAuthToken(ParodusCfg *cfg)
 	memset (cfg->webpa_auth_token, 0, sizeof(cfg->webpa_auth_token));
 	if( cfg->hw_mac != NULL && strlen(cfg->hw_mac) !=0 )
 	{
-		if( cfg->client_cert_path !=NULL && strlen(cfg->client_cert_path) !=0 )
+		if(( cfg->client_cert_path !=NULL && strlen(cfg->client_cert_path) !=0 ) || (( cfg->mtls_client_cert_path !=NULL && strlen(cfg->mtls_client_cert_path) > 0) && (cfg->mtls_client_key_path !=NULL && strlen(cfg->mtls_client_key_path) > 0)))
 		{
 			while(1)
 			{
